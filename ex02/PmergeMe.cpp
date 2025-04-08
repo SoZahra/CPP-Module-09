@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PmergeMe.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fzayani <fzayani@student.42.fr>            +#+  +:+       +#+        */
+/*   By: fatimazahrazayani <fatimazahrazayani@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:48:12 by fzayani           #+#    #+#             */
-/*   Updated: 2025/04/08 17:52:17 by fzayani          ###   ########.fr       */
+/*   Updated: 2025/04/09 00:55:28 by fatimazahra      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ template<typename T>
 std::deque<std::pair<T, T>> PmergeMe<T>::makePairs(const std::deque<T>& elements){
 	std::deque<std::pair<T, T>> pairs;
 
-	bool has_stray = (elements.size() % 2 != 0) //verifier si le nb d'elements est pair ou impair
+	bool has_stray = (elements.size() % 2 != 0); //verifier si le nb d'elements est pair ou impair
 
 	auto end = has_stray ? elements.end() - 1 : elements.end(); //creer des pairs
 	for (auto it = elements.begin(); it != end; it += 2){
@@ -78,6 +78,21 @@ std::deque<std::pair<T, T>> PmergeMe<T>::makePairs(const std::deque<T>& elements
 	}
 
 	return pairs;
+}
+
+template<typename T>
+std::deque<size_t> PmergeMe<T>::calcultateJacobsthatlNumbers(size_t n){
+	std::deque<size_t> jacobsthal;
+	jacobsthal.push_back(0);
+	if(n == 0) return jacobsthal;
+
+	jacobsthal.push_back(1);
+	if(n == 1) return jacobsthal;
+
+	for (size_t i = 2; i <= n; ++i){
+		jacobsthal.push_back(jacobsthal[i-1] + 2 * jacobsthal[i-2]);
+	}
+	return jacobsthal;
 }
 
 template<typename T>
@@ -117,18 +132,80 @@ void PmergeMe<T>::mergeInsertSort(std::deque<T>& elements){
 	std::deque<T> result = larger_elements;
 
 	// 5. Insertion des éléments restants selon la séquence de Jacobsthal
+	// 5. Insertion des éléments restants selon la séquence de Jacobsthal
+	if (!smaller_elements.empty()) {
+		// Insérer le premier élément plus petit au début
+		result.push_front(smaller_elements[0]);
+		
+		// Calculer les nombres de Jacobsthal nécessaires
+		size_t n = smaller_elements.size();
+		std::deque<size_t> jacobsthalSequence = calcultateJacobsthatlNumbers(n);
+		
+		// Générer l'ordre d'insertion basé sur les nombres de Jacobsthal
+		std::deque<size_t> insertionOrder;
+		for (size_t i = 2; i < jacobsthalSequence.size() && insertionOrder.size() < n - 1; ++i) {
+			size_t current = jacobsthalSequence[i];
+			size_t previous = jacobsthalSequence[i-1];
+			
+			// Ajouter tous les indices entre previous et current en ordre inverse
+			for (size_t j = current; j > previous && j <= n; --j) {
+				if (j <= n) {
+					insertionOrder.push_back(j);
+				}
+			}
+		}
+		
+		// Ajouter les indices restants
+		for (size_t i = 1; i <= n; ++i) {
+			if (std::find(insertionOrder.begin(), insertionOrder.end(), i) == insertionOrder.end()) {
+				insertionOrder.push_back(i);
+			}
+		}
+		
+		// Insérer les éléments selon l'ordre calculé
+		for (size_t idx : insertionOrder) {
+			if (idx < smaller_elements.size() && idx > 0) {
+				auto it = std::lower_bound(result.begin(), result.end(), smaller_elements[idx]);
+				result.insert(it, smaller_elements[idx]);
+			}
+		}
+		
+		// Si un élément non apparié existe, l'insérer également
+		if (has_stray) {
+			auto it = std::lower_bound(result.begin(), result.end(), stray_element);
+			result.insert(it, stray_element);
+		}
+	}
+
+	// Mettre à jour le conteneur d'origine
+	elements = result;
 }
 
 template<typename T>
-std::deque<size_t> PmergeMe<T>::calcultateJacobsthatlNumbers(size_t n){
-	std::deque<size_t> jacobsthal;
-	jacobsthal.push_back(0);
-	if(n == 0) return jacobsthal;
+void PmergeMe<T>::mergeInsertSort2(std::vector<T>& elements) {
+    // Convertir vector en deque
+    std::deque<T> deque_elements(elements.begin(), elements.end());
+    
+    // Utiliser la version deque du tri
+    mergeInsertSort(deque_elements);
+    
+    // Convertir le résultat en vector
+    elements.assign(deque_elements.begin(), deque_elements.end());
 }
 
-template<typename T>
+template<typename T>  
 void PmergeMe<T>::displaySorted() const{
-	// return std::sort <<
+	std::cout << "Deque: ";
+	for (const auto& elem : _deque){
+		std::cout << elem << " ";
+	}
+	std::cout << std::endl;
+
+	std::cout << "Vector: ";
+	for (const auto& elem : _vector){
+		std::cout << elem << " ";
+	}
+	std::cout << std::endl;
 }
 
 template<typename T>

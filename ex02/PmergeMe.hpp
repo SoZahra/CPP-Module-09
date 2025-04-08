@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PmergeMe.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fzayani <fzayani@student.42.fr>            +#+  +:+       +#+        */
+/*   By: fatimazahrazayani <fatimazahrazayani@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:46:48 by fzayani           #+#    #+#             */
-/*   Updated: 2025/04/02 18:19:15 by fzayani          ###   ########.fr       */
+/*   Updated: 2025/04/09 00:13:55 by fatimazahra      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,8 @@ class PmergeMe {
 		void displaySorted() const;
 		const std::deque<T>& getSortedDeque() const;
 		const std::vector<T>& getSortedVector() const;
+
+		std::deque<size_t> PmergeMe<T>::calcultateJacobsthatlNumbers(size_t n);
 };
 
 #endif
