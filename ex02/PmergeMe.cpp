@@ -6,7 +6,7 @@
 /*   By: fzayani <fzayani@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:48:12 by fzayani           #+#    #+#             */
-/*   Updated: 2025/04/11 15:21:40 by fzayani          ###   ########.fr       */
+/*   Updated: 2025/04/11 15:56:31 by fzayani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,8 +86,6 @@ std::vector<std::pair<T, T> > PmergeMe<T>::makePairs_(const std::vector<T>& elem
 
 	bool has_stray = (elementsCopy.size() % 2 != 0); //verifier si le nb d'elements est pair ou impair
 
-	// auto end = has_stray ? elements.end() - 1 : elements.end(); //creer des pairs
-	// for (auto it = elements.begin(); it != end; it += 2)
 	typename std::vector<T>::iterator end = has_stray ? elementsCopy.end() - 1 : elementsCopy.end();
 	for (typename std::vector<T>::iterator it = elementsCopy.begin(); it != end; it += 2){
 		pairs.push_back(std::make_pair(*it, *(it + 1)));
@@ -135,13 +133,6 @@ void PmergeMe<T>::mergeInsertSort(std::deque<T>& elements){
 	//utiliser la fonction makePairs que nous avons deja implementee
 	std::deque<std::pair<T, T> > pairs = makePairs(elements);
 
-	// Debug: Afficher les paires
-	// std::cout << "Pairs: ";
-	// for (typename std::deque<std::pair<T, T> >::const_iterator it = pairs.begin(); it != pairs.end(); ++it) {
-	// 	std::cout << "(" << it->first << "," << it->second << ") ";
-	// }
-	// std::cout << std::endl;
-
 	// 2. Trier chaque paire
 	std::deque<T> larger_elements;
 	std::deque<T> smaller_elements;
@@ -154,30 +145,9 @@ void PmergeMe<T>::mergeInsertSort(std::deque<T>& elements){
 		smaller_elements.push_back(pair.second);
 	}
 
-	 // Debug: Afficher les éléments
-	// std::cout << "Larger elements: ";
-	// for (typename std::deque<T>::const_iterator it = larger_elements.begin(); it != larger_elements.end(); ++it) {
-	// 	std::cout << *it << " ";
-	// }
-	// std::cout << std::endl;
-
-	// std::cout << "Smaller elements: ";
-	// for (typename std::deque<T>::const_iterator it = smaller_elements.begin(); it != smaller_elements.end(); ++it) {
-	// 	std::cout << *it << " ";
-	// }
-	// std::cout << std::endl;
-
 	// 3. Tri récursif des éléments plus grands
 	//tri recursif des elements les plus grands
 	mergeInsertSort(larger_elements);
-
-	//creer une nouvelle sequence principale
-	// Debug: Afficher les éléments après tri
-    // std::cout << "Larger elements after sorting: ";
-    // for (typename std::deque<T>::const_iterator it = larger_elements.begin(); it != larger_elements.end(); ++it) {
-    //     std::cout << *it << " ";
-    // }
-    // std::cout << std::endl;
 	// 4. Construction de la séquence principale
 	std::deque<T> result = larger_elements;
 
@@ -187,18 +157,11 @@ void PmergeMe<T>::mergeInsertSort(std::deque<T>& elements){
 		typename std::deque<T>::iterator pos_it = std::lower_bound(result.begin(), result.end(), smaller_elements[0]);
 		result.insert(pos_it, smaller_elements[0]);
 
-		// Debug: Afficher après insertion du premier élément
-		// std::cout << "After inserting first element: ";
-		// for (typename std::deque<T>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		// 	std::cout << *it << " ";
-		// }
-		// std::cout << std::endl;
-
-		// Calculer les nombres de Jacobsthal nécessaires
+		// Calculer les nombres de Jacobsthal necessaires
 		size_t n = smaller_elements.size();
 		std::deque<size_t> jacobsthalSequence = calcultateJacobsthatlNumbers(n);
 
-		// Générer l'ordre d'insertion basé sur les nombres de Jacobsthal
+		// Generer l'ordre d'insertion base sur les nb de Jacobsthal
 		std::deque<size_t> insertionOrder;
 		for (size_t i = 2; i < jacobsthalSequence.size() && insertionOrder.size() < n - 1; ++i) {
 			size_t current = jacobsthalSequence[i];
@@ -213,7 +176,6 @@ void PmergeMe<T>::mergeInsertSort(std::deque<T>& elements){
 		}
 
 		// Dans la boucle d'insertion, après chaque insertion
-
 		// Ajouter les indices restants
 		for (size_t i = 1; i <= n; ++i) {
 			if (std::find(insertionOrder.begin(), insertionOrder.end(), i) == insertionOrder.end()) {
@@ -226,47 +188,16 @@ void PmergeMe<T>::mergeInsertSort(std::deque<T>& elements){
 			size_t idx = *it;
 			if (idx < smaller_elements.size() && idx > 0) {
 				typename std::deque<T>::iterator pos_it = std::lower_bound(result.begin(), result.end(), smaller_elements[idx]);
-				// size_t pos = std::distance(result.begin(), pos_it);
-
-				// Debug: Afficher avant insertion
-				// std::cout << "About to insert " << smaller_elements[idx] << " at position " << pos << ": ";
-				// for (typename std::deque<T>::const_iterator debug_it = result.begin(); debug_it != result.end(); ++debug_it) {
-				// 	std::cout << *debug_it << " ";
-				// }
-				// std::cout << std::endl;
 
 				// Faire l'insertion
 				result.insert(pos_it, smaller_elements[idx]);
-
-				// Debug: Afficher après insertion
-				// std::cout << "After inserting " << smaller_elements[idx] << " at position " << pos << ": ";
-				// for (typename std::deque<T>::const_iterator debug_it = result.begin(); debug_it != result.end(); ++debug_it) {
-				// 	std::cout << *debug_it << " ";
-				// }
-				// std::cout << std::endl;
 			}
 		}
 
 		// Si un élément non apparié existe, l'insérer également
 		if (has_stray) {
 			typename std::deque<T>::iterator pos_it = std::lower_bound(result.begin(), result.end(), stray_element);
-			// size_t pos = std::distance(result.begin(), pos_it);
-
-			// // Debug
-			// std::cout << "About to insert stray element " << stray_element << " at position " << pos << ": ";
-			// for (typename std::deque<T>::const_iterator it = result.begin(); it != result.end(); ++it) {
-			// 	std::cout << *it << " ";
-			// }
-			// std::cout << std::endl;
-
 			result.insert(pos_it, stray_element);
-
-			// Debug
-			// std::cout << "After inserting stray element: ";
-			// for (typename std::deque<T>::const_iterator it = result.begin(); it != result.end(); ++it) {
-			// 	std::cout << *it << " ";
-			// }
-			// std::cout << std::endl;
 		}
 	}
 
@@ -297,7 +228,6 @@ void PmergeMe<T>::mergeInsertSort_(std::vector<T>& elements) {
 
 	//Pour chaque paire, ajouter le plus grand element a large_elements
 	// et le plus petit a l'autre
-	// for (const auto& pair : pairs)
 	for (typename std::vector<std::pair<T, T> >::const_iterator it = pairs.begin(); it != pairs.end(); ++it){
 		const std::pair<T, T>&pair = *it;
 		larger_elements.push_back(pair.first);
@@ -312,20 +242,18 @@ void PmergeMe<T>::mergeInsertSort_(std::vector<T>& elements) {
 	// 5. Insertion des éléments restants selon la séquence de Jacobsthal
 	if (!smaller_elements.empty()) {
 		// Insérer le premier élément plus petit au début
-		// result.insert(result.begin(), smaller_elements[0]);
 		typename std::vector<T>::iterator pos_it = std::lower_bound(result.begin(), result.end(), smaller_elements[0]);
 		result.insert(pos_it, smaller_elements[0]);
 
-		// Calculer les nombres de Jacobsthal nécessaires
+		// Calculer les nombres de Jacobsthal necessaires
 		size_t n = smaller_elements.size();
 		std::deque<size_t> jacobsthalSequence = calcultateJacobsthatlNumbers(n);
 
-		// Générer l'ordre d'insertion basé sur les nombres de Jacobsthal
+		// Générer l'ordre d'insertion base sur les nb de Jacobsthal
 		std::vector<size_t> insertionOrder;
 		for (size_t i = 2; i < jacobsthalSequence.size() && insertionOrder.size() < n - 1; ++i) {
 			size_t current = jacobsthalSequence[i];
 			size_t previous = jacobsthalSequence[i-1];
-
 			// Ajouter tous les indices entre previous et current en ordre inverse
 			for (size_t j = current; j > previous && j <= n; --j) {
 				if (j <= n) {
@@ -333,7 +261,6 @@ void PmergeMe<T>::mergeInsertSort_(std::vector<T>& elements) {
 				}
 			}
 		}
-
 		// Ajouter les indices restants
 		for (size_t i = 1; i <= n; ++i) {
 			if (std::find(insertionOrder.begin(), insertionOrder.end(), i) == insertionOrder.end()) {
@@ -341,42 +268,24 @@ void PmergeMe<T>::mergeInsertSort_(std::vector<T>& elements) {
 			}
 		}
 
-		// Insérer les éléments selon l'ordre calculé
-		// for (size_t idx : insertionOrder)
+		// Inserer les elements selon l'ordre calcule
 		for (std::vector<size_t>::const_iterator it = insertionOrder.begin(); it != insertionOrder.end(); ++it) {
 			size_t idx = *it;
 			if (idx < smaller_elements.size() && idx > 0) {
 				typename std::vector<T>::iterator pos_it = std::lower_bound(result.begin(), result.end(), smaller_elements[idx]);
-				// size_t pos = std::distance(result.begin(), pos_it);
-
-				// Debug: Afficher avant insertion
-				// std::cout << "About to insert " << smaller_elements[idx] << " at position " << pos << ": ";
-				// for (typename std::vector<T>::const_iterator debug_it = result.begin(); debug_it != result.end(); ++debug_it) {
-				// 	std::cout << *debug_it << " ";
-				// }
-				// std::cout << std::endl;
-
-				// Faire l'insertion
+				// insertion
 				result.insert(pos_it, smaller_elements[idx]);
-
-				// Debug: Afficher après insertion
-				// std::cout << "After inserting " << smaller_elements[idx] << " at position " << pos << ": ";
-				// for (typename std::vector<T>::const_iterator debug_it = result.begin(); debug_it != result.end(); ++debug_it) {
-				// 	std::cout << *debug_it << " ";
-				// }
-				// std::cout << std::endl;
 			}
 		}
 		// Si un élément non apparié existe, l'insérer également
 		if (has_stray) {
 			typename std::vector<T>::iterator pos_it = std::lower_bound(result.begin(), result.end(), stray_element);
-			// size_t pos = std::distance(result.begin(), pos_it);
-			// std::cout << "About to insert stray element " << stray_element << " at position " << pos << ": ";
 			result.insert(pos_it, stray_element);
 		}
 	}// Mettre à jour le conteneur d'origine
 	elements = result;
 }
+
 
 template<typename T>
 void PmergeMe<T>::displaySorted() const{
@@ -388,8 +297,6 @@ void PmergeMe<T>::displaySorted() const{
 	std::cout << std::endl;
 
 	std::cout << "Vector: ";
-	// for (const auto& elem : _vector){
-	// 	std::cout << elem << " ";
 	for (typename std::vector<T>::const_iterator it = _vector.begin(); it != _vector.end(); ++it) {
 		std::cout << *it << " ";
 	}
