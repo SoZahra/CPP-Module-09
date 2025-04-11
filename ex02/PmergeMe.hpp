@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PmergeMe.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fatimazahrazayani <fatimazahrazayani@st    +#+  +:+       +#+        */
+/*   By: fzayani <fzayani@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:46:48 by fzayani           #+#    #+#             */
-/*   Updated: 2025/04/09 00:13:55 by fatimazahra      ###   ########.fr       */
+/*   Updated: 2025/04/10 14:56:11 by fzayani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include <iostream>
 #include <algorithm>
-#include <cstdint>
+#include <stdint.h>
 #include <deque>
 #include <vector>
 #include <utility>
@@ -37,8 +37,10 @@ class PmergeMe {
 		void sortDeque(const std::deque<T>& input);
 		void sortVector(const std::vector<T>& input);
 
-		std::deque<std::pair<T, T>> makePairs(const std::deque<T>& elements);
+		std::deque<std::pair<T, T> > makePairs(const std::deque<T>& elements);
+		std::vector<std::pair<T, T> > makePairs_(const std::vector<T>& elements);
 		void mergeInsertSort(std::deque<T>& elements);
+		void mergeInsertSort_(std::vector<T>& elements);
 
 		//afficher et acceder aux res
 
@@ -46,7 +48,7 @@ class PmergeMe {
 		const std::deque<T>& getSortedDeque() const;
 		const std::vector<T>& getSortedVector() const;
 
-		std::deque<size_t> PmergeMe<T>::calcultateJacobsthatlNumbers(size_t n);
+		std::deque<size_t> calcultateJacobsthatlNumbers(size_t n);
 };
 
 #endif

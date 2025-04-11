@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PmergeMe.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fatimazahrazayani <fatimazahrazayani@st    +#+  +:+       +#+        */
+/*   By: fzayani <fzayani@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:48:12 by fzayani           #+#    #+#             */
-/*   Updated: 2025/04/09 00:55:28 by fatimazahra      ###   ########.fr       */
+/*   Updated: 2025/04/11 12:54:35 by fzayani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void PmergeMe<T>::sortVector(const std::vector<T>& input){
 	_vector = input;
 	clock_t start = clock(); //prendre le temps au debut
 
-	mergeInsertSort(_vector);
+	mergeInsertSort_(_vector);
 	clock_t end = clock();
 
 	double time_taken = double(end - start) / CLOCKS_PER_SEC * 1000000;
@@ -62,13 +62,15 @@ void PmergeMe<T>::sortVector(const std::vector<T>& input){
 }
 
 template<typename T>
-std::deque<std::pair<T, T>> PmergeMe<T>::makePairs(const std::deque<T>& elements){
-	std::deque<std::pair<T, T>> pairs;
+std::deque<std::pair<T, T> > PmergeMe<T>::makePairs(const std::deque<T>& elements){
+	std::deque<std::pair<T, T> > pairs;
 
 	bool has_stray = (elements.size() % 2 != 0); //verifier si le nb d'elements est pair ou impair
 
-	auto end = has_stray ? elements.end() - 1 : elements.end(); //creer des pairs
-	for (auto it = elements.begin(); it != end; it += 2){
+	typename std::deque<T>::iterator end = has_stray ? elements.end() - 1 : elements.end();
+	// auto end = has_stray ? elements.end() - 1 : elements.end(); //creer des pairs
+	// for (auto it = elements.begin(); it != end; it += 2)
+	for (typename std::deque<T>::iterator it = elements.begin(); it != end; it += 2){
 		pairs.push_back(std::make_pair(*it, *(it + 1)));
 		if(pairs.back().second > pairs.back().first){
 			std::swap(pairs.back().first, pairs.back().second);
@@ -77,6 +79,26 @@ std::deque<std::pair<T, T>> PmergeMe<T>::makePairs(const std::deque<T>& elements
 		// le plus grand soit en première position dans la paire.
 	}
 
+	return pairs;
+}
+
+template<typename T>
+std::vector<std::pair<T, T> > PmergeMe<T>::makePairs_(const std::vector<T>& elements){
+	std::vector<std::pair<T, T> > pairs;
+
+	bool has_stray = (elements.size() % 2 != 0); //verifier si le nb d'elements est pair ou impair
+
+	// auto end = has_stray ? elements.end() - 1 : elements.end(); //creer des pairs
+	// for (auto it = elements.begin(); it != end; it += 2)
+	typename std::vector<T>::iterator end = has_stray ? elements.end() - 1 : elements.end();
+	for (typename std::vector<T>::iterator it = elements.begin(); it != end; it += 2){
+		pairs.push_back(std::make_pair(*it, *(it + 1)));
+		if(pairs.back().second > pairs.back().first){
+			std::swap(pairs.back().first, pairs.back().second);
+		} // Ce bloc vérifie si le deuxième élément de la paire est plus grand que le premier.
+		// Si c'est le cas, il les échange pour que l'élément
+		// le plus grand soit en première position dans la paire.
+	}
 	return pairs;
 }
 
@@ -113,7 +135,7 @@ void PmergeMe<T>::mergeInsertSort(std::deque<T>& elements){
 	}
 
 	//utiliser la fonction makePairs que nous avons deja implementee
-	std::deque<std::pair<T, T>> pairs = makePairs(elements);
+	std::deque<std::pair<T, T> > pairs = makePairs(elements);
 	// 2. Trier chaque paire
 	// 3. Tri récursif des éléments plus grands
 	std::deque<T> larger_elements;
@@ -121,7 +143,9 @@ void PmergeMe<T>::mergeInsertSort(std::deque<T>& elements){
 
 	//Pour chaque paire, ajouter le plus grand element a large_elements
 	// et le plus petit a l'autre
-	for (const auto& pair : pairs){
+	// for (const auto& pair : pairs)
+	for (typename std::deque<std::pair<T, T> >::const_iterator it = pairs.begin(); it != pairs.end(); ++it){
+		const std::pair<T, T>& pair = *it;
 		larger_elements.push_back(pair.first);
 		smaller_elements.push_back(pair.second);
 	}
@@ -136,17 +160,17 @@ void PmergeMe<T>::mergeInsertSort(std::deque<T>& elements){
 	if (!smaller_elements.empty()) {
 		// Insérer le premier élément plus petit au début
 		result.push_front(smaller_elements[0]);
-		
+
 		// Calculer les nombres de Jacobsthal nécessaires
 		size_t n = smaller_elements.size();
 		std::deque<size_t> jacobsthalSequence = calcultateJacobsthatlNumbers(n);
-		
+
 		// Générer l'ordre d'insertion basé sur les nombres de Jacobsthal
 		std::deque<size_t> insertionOrder;
 		for (size_t i = 2; i < jacobsthalSequence.size() && insertionOrder.size() < n - 1; ++i) {
 			size_t current = jacobsthalSequence[i];
 			size_t previous = jacobsthalSequence[i-1];
-			
+
 			// Ajouter tous les indices entre previous et current en ordre inverse
 			for (size_t j = current; j > previous && j <= n; --j) {
 				if (j <= n) {
@@ -154,25 +178,29 @@ void PmergeMe<T>::mergeInsertSort(std::deque<T>& elements){
 				}
 			}
 		}
-		
+
 		// Ajouter les indices restants
 		for (size_t i = 1; i <= n; ++i) {
 			if (std::find(insertionOrder.begin(), insertionOrder.end(), i) == insertionOrder.end()) {
 				insertionOrder.push_back(i);
 			}
 		}
-		
+
 		// Insérer les éléments selon l'ordre calculé
-		for (size_t idx : insertionOrder) {
+		// for (size_t idx : insertionOrder)
+		for (std::deque<size_t>::const_iterator it = insertionOrder.begin(); it != insertionOrder.end(); ++it) {
+			size_t idx = *it;
 			if (idx < smaller_elements.size() && idx > 0) {
-				auto it = std::lower_bound(result.begin(), result.end(), smaller_elements[idx]);
+				typename std::deque<T>::iterator it = std::lower_bound(result.begin(), result.end(), smaller_elements[idx]);
+				// auto it = std::lower_bound(result.begin(), result.end(), smaller_elements[idx]);
 				result.insert(it, smaller_elements[idx]);
 			}
 		}
-		
+
 		// Si un élément non apparié existe, l'insérer également
 		if (has_stray) {
-			auto it = std::lower_bound(result.begin(), result.end(), stray_element);
+			typename std::deque<T>::iterator it = std::lower_bound(result.begin(), result.end(), stray_element);
+			// auto it = std::lower_bound(result.begin(), result.end(), stray_element);
 			result.insert(it, stray_element);
 		}
 	}
@@ -182,18 +210,87 @@ void PmergeMe<T>::mergeInsertSort(std::deque<T>& elements){
 }
 
 template<typename T>
-void PmergeMe<T>::mergeInsertSort2(std::vector<T>& elements) {
-    // Convertir vector en deque
-    std::deque<T> deque_elements(elements.begin(), elements.end());
-    
-    // Utiliser la version deque du tri
-    mergeInsertSort(deque_elements);
-    
-    // Convertir le résultat en vector
-    elements.assign(deque_elements.begin(), deque_elements.end());
+void PmergeMe<T>::mergeInsertSort_(std::vector<T>& elements) {
+	if(elements.size() <= 1){
+		return; //si vide ou qu'un seul element
+	}
+
+	// 1. Former des paires
+	bool has_stray = (elements.size() % 2 != 0);
+	T stray_element;
+
+	// si nb impair d'elements sauvegarde l'element non apparie
+	if(has_stray){
+		stray_element = elements.back();
+		elements.pop_back();
+	}
+
+	//utiliser la fonction makePairs que nous avons deja implementee
+	std::vector<std::pair<T, T> > pairs = makePairs_(elements);
+	std::vector<T> larger_elements;
+	std::vector<T> smaller_elements;
+
+	//Pour chaque paire, ajouter le plus grand element a large_elements
+	// et le plus petit a l'autre
+	// for (const auto& pair : pairs)
+	for (typename std::vector<std::pair<T, T> >::const_iterator it = pairs.begin(); it != pairs.end(); ++it){
+		const std::pair<T, T>&pair = *it;
+		larger_elements.push_back(pair.first);
+		smaller_elements.push_back(pair.second);
+	}
+	//tri recursif des elements les plus grands
+	mergeInsertSort_(larger_elements);
+	// 4. Construction de la séquence principale
+	//creer une nouvelle sequence principale
+	std::vector<T> result = larger_elements;
+
+	// 5. Insertion des éléments restants selon la séquence de Jacobsthal
+	if (!smaller_elements.empty()) {
+		// Insérer le premier élément plus petit au début
+		result.insert(result.begin(), smaller_elements[0]);
+
+		// Calculer les nombres de Jacobsthal nécessaires
+		size_t n = smaller_elements.size();
+		std::deque<size_t> jacobsthalSequence = calcultateJacobsthatlNumbers(n);
+
+		// Générer l'ordre d'insertion basé sur les nombres de Jacobsthal
+		std::vector<size_t> insertionOrder;
+		for (size_t i = 2; i < jacobsthalSequence.size() && insertionOrder.size() < n - 1; ++i) {
+			size_t current = jacobsthalSequence[i];
+			size_t previous = jacobsthalSequence[i-1];
+
+			// Ajouter tous les indices entre previous et current en ordre inverse
+			for (size_t j = current; j > previous && j <= n; --j) {
+				if (j <= n) {
+					insertionOrder.push_back(j);
+				}
+			}
+		}
+
+		// Ajouter les indices restants
+		for (size_t i = 1; i <= n; ++i) {
+			if (std::find(insertionOrder.begin(), insertionOrder.end(), i) == insertionOrder.end()) {
+				insertionOrder.push_back(i);
+			}
+		}
+
+		// Insérer les éléments selon l'ordre calculé
+		for (size_t idx : insertionOrder) {
+			if (idx < smaller_elements.size() && idx > 0) {
+				auto it = std::lower_bound(result.begin(), result.end(), smaller_elements[idx]);
+				result.insert(it, smaller_elements[idx]);
+			}
+		}
+		// Si un élément non apparié existe, l'insérer également
+		if (has_stray) {
+			auto it = std::lower_bound(result.begin(), result.end(), stray_element);
+			result.insert(it, stray_element);
+		}
+	}// Mettre à jour le conteneur d'origine
+	elements = result;
 }
 
-template<typename T>  
+template<typename T>
 void PmergeMe<T>::displaySorted() const{
 	std::cout << "Deque: ";
 	for (const auto& elem : _deque){
